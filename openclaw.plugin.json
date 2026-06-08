@@ -1,0 +1,50 @@
+{
+  "id": "metacognitive-memory",
+  "name": "Metacognitive Memory",
+  "description": "L0~L6 six-layer cognitive memory system: raw logs, extraction, scene blocks, cognitive graphs, goal tracking, knowledge base, and self-model. Each layer is accessible as an independent tool for persistent memory, goal management, and self-reflection across sessions.",
+  "version": "1.0.0",
+  "activation": {
+    "onStartup": true
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "stateDir": {
+        "type": "string",
+        "description": "Custom state directory for SQLite memory files. Defaults to OpenClaw state directory."
+      },
+      "everyNConversations": {
+        "type": "number",
+        "default": 3
+      },
+      "idleTimeoutSeconds": {
+        "type": "number",
+        "default": 60
+      }
+    }
+  },
+  "contracts": {
+    "tools": [
+      "l0_capture",
+      "l0_list",
+      "l1_extract",
+      "l1_list",
+      "l2_create_scene",
+      "l2_list_scenes",
+      "l3_update_graph",
+      "l3_list_entities",
+      "l3_list_relations",
+      "l4_create_goal",
+      "l4_tree",
+      "l4_update_goal",
+      "l4_delete_goal",
+      "l5_add_fact",
+      "l5_search",
+      "l5_verify_fact",
+      "l5_list_facts",
+      "l5_delete_fact",
+      "l6_log_error",
+      "l6_self_check"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+# Node / npm
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+pnpm-debug.log
+
+# Build / cache
+dist/.tsbuildinfo
+*.tsbuildinfo
+.cache/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local env / secrets
+.env
+.env.local
+.env.*.local
+
+# Test / coverage
+coverage/
+*.log
+.nyc_output/
+
+# Plugin runtime state (auto-created at runtime, never commit)
+.metacognitive_memory/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm

@@ -39,6 +39,14 @@
   ],
   "author": "Metacognitive Memory Team",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudcode-hans/metacognitive-memory-plugin.git"
+  },
+  "homepage": "https://github.com/cloudcode-hans/metacognitive-memory-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/cloudcode-hans/metacognitive-memory-plugin/issues"
+  },
   "engines": {
     "node": ">=22.16.0"
   },
@@ -60,7 +68,9 @@
       "./dist/index.js"
     ],
     "build": {
-      "openclawVersion": "2026.6.1"
+      "openclawVersion": "2026.6.1",
+      "commitSha": "c226a24299a31b1db26e29945d81ff4f7d49b0f8",
+      "repositoryUrl": "https://github.com/cloudcode-hans/metacognitive-memory-plugin"
     },
     "compat": {
       "pluginApi": ">=2026.5.17",

@@ -165,6 +165,10 @@ export const tools = [
 
   ["l4_update_goal", "Update a goal's status/blocker/priority", {
     goal_id: Type.String(),
+<<<<<<< HEAD
+=======
+    session_id: Type.String(),
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
     status: Type.Optional(GoalStatusEnum),
     blocker: Type.Optional(Type.String()),
     priority: Type.Optional(Type.Number()),
@@ -172,6 +176,10 @@ export const tools = [
 
   ["l4_delete_goal", "Delete a goal and its subtree", {
     goal_id: Type.String(),
+<<<<<<< HEAD
+=======
+    session_id: Type.String(),
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }] as const,
 
   // ── L5 ────────────────────────────────────────────────────────────────────────────
@@ -191,6 +199,10 @@ export const tools = [
 
   ["l5_verify_fact", "Mark a knowledge fact as verified", {
     fact_id: Type.String(),
+<<<<<<< HEAD
+=======
+    session_id: Type.String(),
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }] as const,
 
   ["l5_list_facts", "List knowledge facts", {
@@ -201,6 +213,10 @@ export const tools = [
 
   ["l5_delete_fact", "Delete a knowledge fact", {
     fact_id: Type.String(),
+<<<<<<< HEAD
+=======
+    session_id: Type.String(),
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }] as const,
 
   // ── L6 ─────────────────────────────────────────────────────────────────────
@@ -308,6 +324,10 @@ export function buildExecuteHandler(api: OpenClawPluginApi) {
       case "l4_update_goal":
         m.l4UpdateGoal({
           goalId: String(params.goal_id),
+<<<<<<< HEAD
+=======
+          sessionId: String(params.session_id),
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
           status: params.status ? String(params.status) as GoalStatus : undefined,
           blocker: params.blocker !== undefined ? String(params.blocker) : undefined,
           priority: params.priority !== undefined ? Number(params.priority) : undefined,
@@ -315,7 +335,11 @@ export function buildExecuteHandler(api: OpenClawPluginApi) {
         return { updated: true };
 
       case "l4_delete_goal":
+<<<<<<< HEAD
         m.l4DeleteGoal(String(params.goal_id));
+=======
+        m.l4DeleteGoal(String(params.goal_id), String(params.session_id));
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
         return { deleted: true };
 
       // L5
@@ -336,7 +360,11 @@ export function buildExecuteHandler(api: OpenClawPluginApi) {
         );
 
       case "l5_verify_fact":
+<<<<<<< HEAD
         m.l5VerifyFact(String(params.fact_id));
+=======
+        m.l5VerifyFact(String(params.fact_id), String(params.session_id));
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
         return { verified: true };
 
       case "l5_list_facts":
@@ -347,7 +375,11 @@ export function buildExecuteHandler(api: OpenClawPluginApi) {
         );
 
       case "l5_delete_fact":
+<<<<<<< HEAD
         m.l5DeleteFact(String(params.fact_id));
+=======
+        m.l5DeleteFact(String(params.fact_id), String(params.session_id));
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
         return { deleted: true };
 
       // L6
@@ -373,15 +405,26 @@ export default definePluginEntry({
   id: "metacognitive-memory",
   name: "Metacognitive Memory",
   description:
+<<<<<<< HEAD
     "L0~L6 six-layer cognitive memory system with automatic conversation capture. " +
     "Captures every inbound message and outbound reply globally as L0 raw logs, " +
     "extracts structured memories (L1), builds scene blocks (L2), cognitive graphs (L3), " +
     "goal trees (L4), knowledge base (L5), and self-model diagnostics (L6).",
+=======
+    "L0~L6 cognitive memory system with privacy controls. " +
+    "Captures and structures conversation content ONLY when allowConversationAccess=true. " +
+    "Stores raw logs (L0), extracted memories (L1), scenes (L2), cognitive graphs (L3), " +
+    "goal trees (L4), knowledge base (L5), and self-model diagnostics (L6). " +
+    "WARNING: May contain sensitive data. Review before enabling in workspaces with " +
+    "credentials, regulated data, or proprietary prompts. Use allowConversationAccess=false " +
+    "and manual l0_capture for sensitive contexts.",
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   register(api: OpenClawPluginApi) {
     const core = getOrCreateCore(api);
     const initPromise = core.initialize();
     const handler = buildExecuteHandler(api);
 
+<<<<<<< HEAD
     // ── Conversation hooks for automatic global capture ─────────────────────
     const hookHandler = async (event: { type: string; action: string; sessionKey: string; context: Record<string, unknown> }) => {
       try {
@@ -411,6 +454,63 @@ export default definePluginEntry({
       hookHandler as never,
       { name: "metacognitive-memory" }
     );
+=======
+    // ── Sensitive data redaction ───────────────────────────────────────────
+    const REDACT_PATTERNS = [
+      /([A-Za-z0-9]{20,}=*[A-Za-z0-9+/=]{20,})/g,  // API keys, tokens
+      /(sk-[A-Za-z0-9_-]{20,})/g,                   // OpenAI keys
+      /(password|passwd|pwd)[;:]\s*\S+/gi,          // password: xxx
+      /(Bearer|Token|Basic)\s+[A-Za-z0-9_.-]+/gi,  // Auth headers
+      /(\d{3}-\d{2}-\d{4})/g,                        // SSN
+      /(\d{16,19})\s+\d{2}\/\d{2}/g,                 // Credit card
+    ];
+
+    function redact(content: string): string {
+      let redacted = content;
+      for (const pattern of REDACT_PATTERNS) {
+        redacted = redacted.replace(pattern, "[REDACTED]");
+      }
+      return redacted;
+    }
+
+    // ── Conversation hooks — require explicit opt-in ─────────────────────
+    const hooksConfig = api.pluginConfig as { allowConversationAccess?: boolean } | undefined;
+    const allowCapture = hooksConfig?.allowConversationAccess === true;
+
+    if (allowCapture) {
+      api.logger.info("[metacognitive-memory] Conversation capture ENABLED (allowConversationAccess=true)");
+      const hookHandler = async (event: { type: string; action: string; sessionKey: string; context: Record<string, unknown> }) => {
+        try {
+          await initPromise;
+          let role = "user";
+          let content = "";
+          if (event.type === "message" && event.action === "received") {
+            const ctx = event.context as { content?: string };
+            content = ctx?.content ?? "";
+            role = "user";
+          } else if (event.type === "message" && event.action === "sent") {
+            const ctx = event.context as { content?: string };
+            content = ctx?.content ?? "";
+            role = "assistant";
+          } else if (event.type === "session" && event.action === "patch") {
+            content = "[session started]";
+            role = "system";
+          }
+          if (content.trim()) {
+            await core.l0Capture({ sessionId: event.sessionKey, role, content: redact(content) });
+          }
+        } catch (err) { api.logger.error(`[metacognitive-memory] hook error: ${err}`); }
+      };
+
+      api.registerHook(
+        ["message:received", "message:sent", "session:patch"],
+        hookHandler as never,
+        { name: "metacognitive-memory" }
+      );
+    } else {
+      api.logger.info("[metacognitive-memory] Conversation capture DISABLED (allowConversationAccess=false or unset). Use manual l0_capture for session logging.");
+    }
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
 
     // ── Register all L0~L6 tools ────────────────────────────────────────────
     const toolDefs: AnyAgentTool[] = tools.map(([name, description, schema]) => {

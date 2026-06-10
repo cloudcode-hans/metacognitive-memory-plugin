@@ -30,7 +30,11 @@ export class MetaCore {
   private ready: Promise<void>;
 
   constructor(cfg: MetaCoreConfig) {
+<<<<<<< HEAD
     const dbPath = join(cfg.stateDir, ".metacognitive_memory", "memory.db");
+=======
+    const dbPath = join(cfg.stateDir, "memory.db");
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
     this.store = new MemoryStore(dbPath);
     this.ready = this.store.initialize();
   }
@@ -113,12 +117,21 @@ export class MetaCore {
     return this.store.l4Tree(sessionId);
   }
 
+<<<<<<< HEAD
   l4UpdateGoal(p: { goalId: string; status?: GoalStatus; blocker?: string; priority?: number }): void {
     return this.store.l4UpdateGoal(p);
   }
 
   l4DeleteGoal(goalId: string): void {
     return this.store.l4DeleteGoal(goalId);
+=======
+  l4UpdateGoal(p: { goalId: string; sessionId: string; status?: GoalStatus; blocker?: string; priority?: number }): void {
+    return this.store.l4UpdateGoal(p);
+  }
+
+  l4DeleteGoal(goalId: string, sessionId: string): void {
+    return this.store.l4DeleteGoal(goalId, sessionId);
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }
 
   // ─── L5 ────────────────────────────────────────────────────────────────────
@@ -137,16 +150,26 @@ export class MetaCore {
     return this.store.l5Search(sessionId, query, limit);
   }
 
+<<<<<<< HEAD
   l5VerifyFact(factId: string): void {
     return this.store.l5VerifyFact(factId);
+=======
+  l5VerifyFact(factId: string, sessionId: string): void {
+    return this.store.l5VerifyFact(factId, sessionId);
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }
 
   l5ListFacts(sessionId: string, domain?: string, limit = 50): KnowledgeFactRow[] {
     return this.store.l5ListFacts(sessionId, domain, limit);
   }
 
+<<<<<<< HEAD
   l5DeleteFact(factId: string): void {
     return this.store.l5DeleteFact(factId);
+=======
+  l5DeleteFact(factId: string, sessionId: string): void {
+    return this.store.l5DeleteFact(factId, sessionId);
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }
 
   // ─── L6 ────────────────────────────────────────────────────────────────────

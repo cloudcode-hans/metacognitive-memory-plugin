@@ -545,7 +545,11 @@ export class MemoryStore {
     );
   }
 
+<<<<<<< HEAD
   l4UpdateGoal(p: { goalId: string; status?: GoalStatus; blocker?: string; priority?: number }): void {
+=======
+  l4UpdateGoal(p: { goalId: string; sessionId: string; status?: GoalStatus; blocker?: string; priority?: number }): void {
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
     const updates: string[] = ["updated_at = ?"];
     const params: unknown[] = [nowIso()];
     if (p.status) {
@@ -560,12 +564,21 @@ export class MemoryStore {
       updates.push(`priority = ?`);
       params.push(p.priority);
     }
+<<<<<<< HEAD
     params.push(p.goalId);
     this.execute(`UPDATE goal SET ${updates.join(", ")} WHERE id = ?`, params);
   }
 
   l4DeleteGoal(goalId: string): void {
     this.execute(`DELETE FROM goal WHERE id = ?`, [goalId]);
+=======
+    params.push(p.goalId, p.sessionId);
+    this.execute(`UPDATE goal SET ${updates.join(", ")} WHERE id = ? AND session_id = ?`, params);
+  }
+
+  l4DeleteGoal(goalId: string, sessionId: string): void {
+    this.execute(`DELETE FROM goal WHERE id = ? AND session_id = ?`, [goalId, sessionId]);
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }
 
   // ─── L5 ────────────────────────────────────────────────────────────────────
@@ -606,10 +619,17 @@ export class MemoryStore {
     );
   }
 
+<<<<<<< HEAD
   l5VerifyFact(factId: string): void {
     this.execute(
       `UPDATE knowledge_fact SET verified = 1, verified_at = ? WHERE id = ?`,
       [nowIso(), factId]
+=======
+  l5VerifyFact(factId: string, sessionId: string): void {
+    this.execute(
+      `UPDATE knowledge_fact SET verified = 1, verified_at = ? WHERE id = ? AND session_id = ?`,
+      [nowIso(), factId, sessionId]
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
     );
   }
 
@@ -620,8 +640,13 @@ export class MemoryStore {
     return this.listRows<KnowledgeFactRow>(sql, domain ? [sessionId, domain, limit] : [sessionId, limit]);
   }
 
+<<<<<<< HEAD
   l5DeleteFact(factId: string): void {
     this.execute(`DELETE FROM knowledge_fact WHERE id = ?`, [factId]);
+=======
+  l5DeleteFact(factId: string, sessionId: string): void {
+    this.execute(`DELETE FROM knowledge_fact WHERE id = ? AND session_id = ?`, [factId, sessionId]);
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   }
 
   // ─── L6 ────────────────────────────────────────────────────────────────────

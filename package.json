@@ -1,7 +1,7 @@
 {
   "name": "@cloudcode-hans/metacognitive-memory",
   "version": "1.0.0",
-  "description": "L0~L6 six-layer cognitive memory system plugin for OpenClaw — pure sql.js WASM SQLite, zero native dependencies, cross-device portable",
+  "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. AllowConversationAccess=false by default.",
   "type": "module",
   "main": "./dist/index.js",
   "exports": {

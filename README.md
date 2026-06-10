@@ -30,11 +30,31 @@ Each layer is exposed as an **independent tool** (20 in total) so the agent can 
 
 - **Zero native dependencies** — `sql.js` is a WASM-compiled SQLite, runs anywhere Node.js runs
 - **Cross-device portable** — copy the single `.db` file between machines and your memory travels
+<<<<<<< HEAD
 - **Automatic L0 capture** — registers `message:received`, `message:sent`, `session:patch` hooks so every conversation is journaled without any extra calls
 - **20 independent tools** — one per memory operation, no monolithic "remember" tool
 - **Configurable extraction** — `everyNConversations` and `idleTimeoutSeconds` tune when L1 fires
 - **Self-diagnostic** — `l6_self_check` returns a JSON summary of error counts and capability categories
 - **Per-session isolation** — every row is scoped by `session_id` so multi-agent workloads don't mix
+=======
+- **Opt-in conversation capture** — set `allowConversationAccess: true` to enable automatic L0 capture via `message:received`/`message:sent` hooks
+- **20 independent tools** — one per memory operation, no monolithic "remember" tool
+- **Sensitive data redaction** — API keys, passwords, tokens are automatically redacted before storage
+- **Per-session isolation** — all mutating operations enforce `session_id` constraints to prevent cross-session access
+- **Configurable extraction** — `everyNConversations` and `idleTimeoutSeconds` tune when L1 fires
+- **Self-diagnostic** — `l6_self_check` returns a JSON summary of error counts and capability categories
+
+---
+
+## Privacy & Security
+
+⚠️ **WARNING**: This plugin captures and stores conversation content. Review before enabling:
+
+- **DO NOT** enable `allowConversationAccess: true` in workspaces handling credentials, regulated data, or proprietary prompts
+- **Disable** automatic capture and use manual `l0_capture` for sensitive contexts
+- **Sensitive data** (API keys, passwords, tokens, SSN, credit cards) are automatically redacted, but manual review is still recommended
+- All mutation operations enforce session isolation to prevent cross-session data access
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
 
 ---
 
@@ -44,7 +64,11 @@ Each layer is exposed as an **independent tool** (20 in total) so the agent can 
 # 1. Install
 openclaw plugins install metacognitive-memory
 
+<<<<<<< HEAD
 # 2. Enable + register the memory slot + grant hook policy.
+=======
+# 2. Configure (OPT-IN for conversation capture).
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
 #    Edit ~/.openclaw/openclaw.json:
 ```
 
@@ -58,11 +82,18 @@ openclaw plugins install metacognitive-memory
       "metacognitive-memory": {
         "enabled": true,
         "hooks": {
+<<<<<<< HEAD
           "allowPromptInjection": true,
           "allowConversationAccess": true
         },
         "config": {
           "stateDir": "~/.openclaw/state/metacognitive-memory",
+=======
+          "allowConversationAccess": false
+        },
+        "config": {
+          "stateDir": "~/.openclaw/metacognitive_memory",
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
           "everyNConversations": 3,
           "idleTimeoutSeconds": 60
         }
@@ -72,6 +103,11 @@ openclaw plugins install metacognitive-memory
 }
 ```
 
+<<<<<<< HEAD
+=======
+> ⚠️ **Security**: `allowConversationAccess: false` by default. Only set to `true` if you want automatic conversation capture. Do NOT enable in sensitive workspaces.
+
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
 ```bash
 # 3. Restart the gateway and verify
 openclaw gateway restart
@@ -96,12 +132,21 @@ The `--link` flag means `dist/` edits are picked up after a gateway restart — 
 
 ## Hook policy — why these flags matter
 
+<<<<<<< HEAD
 The two flags in `entries.metacognitive-memory.hooks` are not optional if you want automatic L0 capture:
 
 - **`allowConversationAccess: true`** — required. The plugin reads the raw inbound/outbound message bodies from `message:received` / `message:sent` events. Without it, those hooks are blocked by core's safety gate and the database stays empty.
 - **`allowPromptInjection: true`** — optional but recommended. Lets the plugin mutate prompts through typed hooks (e.g. injecting recalled context). Safe for this plugin because it only injects, never replaces.
 
 If you'd rather not auto-capture, set `allowConversationAccess: false` — the 20 tools still work, you just have to call `l0_capture` yourself.
+=======
+The `allowConversationAccess` flag controls automatic L0 capture:
+
+- **`allowConversationAccess: true`** — OPT-IN. The plugin reads raw inbound/outbound message bodies from `message:received`/`message:sent` events and stores them in L0. **Only enable in non-sensitive workspaces.**
+- **`allowConversationAccess: false`** (default) — Only manual `l0_capture` tool works; hooks are not registered.
+
+> ⚠️ **Security Notice**: This plugin stores conversation content locally. Avoid enabling automatic capture in workspaces handling credentials, regulated data, or proprietary prompts.
+>>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
 
 ---
 

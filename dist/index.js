@@ -281,7 +281,6 @@ export default definePluginEntry({
         const core = getOrCreateCore(api);
         const initPromise = core.initialize();
         const handler = buildExecuteHandler(api);
-        // ── Conversation hooks for automatic global capture ─────────────────────
         const hookHandler = async (event) => {
             try {
                 await initPromise;
@@ -310,7 +309,6 @@ export default definePluginEntry({
             }
         };
         api.registerHook(["message:received", "message:sent", "session:patch"], hookHandler, { name: "metacognitive-memory" });
-        // ── Register all L0~L6 tools ────────────────────────────────────────────
         const toolDefs = tools.map(([name, description, schema]) => {
             const td = {
                 name,

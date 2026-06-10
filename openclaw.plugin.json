@@ -2,7 +2,7 @@
   "id": "metacognitive-memory",
   "name": "Metacognitive Memory",
   "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. Only enable allowConversationAccess=true if you want automatic conversation capture. Disable in workspaces with credentials, regulated data, or proprietary prompts.",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "activation": {
     "onStartup": false
   },

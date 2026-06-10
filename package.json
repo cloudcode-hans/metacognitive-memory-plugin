@@ -1,0 +1,80 @@
+{
+  "name": "@cloudcode-hans/metacognitive-memory",
+  "version": "1.0.0",
+  "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. AllowConversationAccess=false by default.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "build:watch": "tsc --project tsconfig.json --watch",
+    "plugin:build": "npm run build && openclaw plugins build --entry ./dist/index.js",
+    "plugin:validate": "openclaw plugins validate --entry ./dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "openclaw.plugin.json",
+    "README.md",
+    "LICENSE",
+    "tsconfig.json"
+  ],
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "memory",
+    "long-term-memory",
+    "sqlite",
+    "sql.js",
+    "cognitive",
+    "metacognitive",
+    "agent-memory"
+  ],
+  "author": "Metacognitive Memory Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cloudcode-hans/metacognitive-memory-plugin.git"
+  },
+  "homepage": "https://github.com/cloudcode-hans/metacognitive-memory-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/cloudcode-hans/metacognitive-memory-plugin/issues"
+  },
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "dependencies": {
+    "sql.js": "^1.11.0",
+    "typebox": "^1.1.38"
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.5.17"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/sql.js": "^1.4.11",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0"
+  },
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ],
+    "build": {
+      "openclawVersion": "2026.6.1",
+      "commitSha": "c226a24299a31b1db26e29945d81ff4f7d49b0f8",
+      "repositoryUrl": "https://github.com/cloudcode-hans/metacognitive-memory-plugin"
+    },
+    "compat": {
+      "pluginApi": ">=2026.5.17",
+      "minGatewayVersion": ">=2026.5.17"
+    }
+  }
+}

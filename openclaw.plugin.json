@@ -1,0 +1,55 @@
+{
+  "id": "metacognitive-memory",
+  "name": "Metacognitive Memory",
+  "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. Only enable allowConversationAccess=true if you want automatic conversation capture. Disable in workspaces with credentials, regulated data, or proprietary prompts.",
+  "version": "1.0.0",
+  "activation": {
+    "onStartup": false
+  },
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "allowConversationAccess": {
+        "type": "boolean",
+        "default": false,
+        "description": "OPT-IN ONLY. When true, automatically captures message:received/message:sent events as L0 raw logs. Only enable if you want persistent conversation logging. Disable for sensitive contexts."
+      },
+      "stateDir": {
+        "type": "string",
+        "description": "Custom state directory for SQLite memory files. Defaults to OpenClaw state directory."
+      },
+      "everyNConversations": {
+        "type": "number",
+        "default": 3
+      },
+      "idleTimeoutSeconds": {
+        "type": "number",
+        "default": 60
+      }
+    }
+  },
+  "contracts": {
+    "tools": [
+      "l0_capture",
+      "l0_list",
+      "l1_extract",
+      "l1_list",
+      "l2_create_scene",
+      "l2_list_scenes",
+      "l3_update_graph",
+      "l3_list_entities",
+      "l3_list_relations",
+      "l4_create_goal",
+      "l4_tree",
+      "l4_update_goal",
+      "l4_delete_goal",
+      "l5_add_fact",
+      "l5_search",
+      "l5_verify_fact",
+      "l5_list_facts",
+      "l5_delete_fact",
+      "l6_log_error",
+      "l6_self_check"
+    ]
+  }
+}

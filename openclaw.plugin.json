@@ -1,29 +1,19 @@
 {
   "id": "metacognitive-memory",
   "name": "Metacognitive Memory",
-<<<<<<< HEAD
-  "description": "L0~L6 six-layer cognitive memory system: raw logs, extraction, scene blocks, cognitive graphs, goal tracking, knowledge base, and self-model. Each layer is accessible as an independent tool for persistent memory, goal management, and self-reflection across sessions.",
-  "version": "1.0.0",
-  "activation": {
-    "onStartup": true
-=======
   "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. Only enable allowConversationAccess=true if you want automatic conversation capture. Disable in workspaces with credentials, regulated data, or proprietary prompts.",
   "version": "1.0.0",
   "activation": {
     "onStartup": false
->>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
   },
   "configSchema": {
     "type": "object",
     "properties": {
-<<<<<<< HEAD
-=======
       "allowConversationAccess": {
         "type": "boolean",
         "default": false,
         "description": "OPT-IN ONLY. When true, automatically captures message:received/message:sent events as L0 raw logs. Only enable if you want persistent conversation logging. Disable for sensitive contexts."
       },
->>>>>>> 2898562 (Security audit fixes: session isolation, opt-in capture, data redaction, privacy warnings)
       "stateDir": {
         "type": "string",
         "description": "Custom state directory for SQLite memory files. Defaults to OpenClaw state directory."

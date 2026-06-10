@@ -25,53 +25,66 @@ export default definePluginEntry({
     const initPromise = core.initialize();
     const handler = buildExecuteHandler(api);
 
-    // ── Conversation hooks for automatic global capture ─────────────────────
+    // ── Check hook permissions from config ─────────────────────────────────
+    const hooksConfig = api.config?.plugins?.entries?.["metacognitive-memory"]?.hooks as {
+      allowConversationAccess?: boolean;
+      allowPromptInjection?: boolean;
+    } | undefined;
+    const allowConversationAccess = hooksConfig?.allowConversationAccess ?? false;
+    const allowPromptInjection = hooksConfig?.allowPromptInjection ?? false;
 
-    // message:received — every inbound user message
-    api.registerHook("message:received", async (event) => {
-      try {
-        const e = event as { sessionKey: string; context: { content?: string } };
-        const ctx = e.context;
-        await core.l0Capture({
-          sessionId: e.sessionKey,
-          role: "user",
-          content: ctx?.content ?? "",
-        });
-      } catch (err) {
-        api.logger.error(`[metacognitive-memory] message:received error: ${err}`);
-      }
-    });
+    api.logger.info(`[metacognitive-memory] allowConversationAccess=${allowConversationAccess}, allowPromptInjection=${allowPromptInjection}`);
 
-    // message:sent — every outbound assistant reply (covers LLM output)
-    api.registerHook("message:sent", async (event) => {
-      try {
-        const e = event as { sessionKey: string; context: { content?: string } };
-        const ctx = e.context;
-        if (ctx?.content?.trim()) {
+    // ── Conversation hooks for automatic global capture (OPT-IN) ───────────
+    if (allowConversationAccess) {
+      // message:received — every inbound user message
+      api.registerHook("message:received", async (event) => {
+        try {
+          const e = event as { sessionKey: string; context: { content?: string } };
+          const ctx = e.context;
           await core.l0Capture({
             sessionId: e.sessionKey,
-            role: "assistant",
-            content: ctx.content,
+            role: "user",
+            content: ctx?.content ?? "",
           });
+        } catch (err) {
+          api.logger.error(`[metacognitive-memory] message:received error: ${err}`);
         }
-      } catch (err) {
-        api.logger.error(`[metacognitive-memory] message:sent error: ${err}`);
-      }
-    });
+      });
 
-    // session:patch — detect new sessions
-    api.registerHook("session:patch", async (event) => {
-      try {
-        const e = event as { sessionKey: string };
-        await core.l0Capture({
-          sessionId: e.sessionKey,
-          role: "system",
-          content: "[session started]",
-        });
-      } catch (err) {
-        api.logger.error(`[metacognitive-memory] session:patch error: ${err}`);
-      }
-    });
+      // message:sent — every outbound assistant reply (covers LLM output)
+      api.registerHook("message:sent", async (event) => {
+        try {
+          const e = event as { sessionKey: string; context: { content?: string } };
+          const ctx = e.context;
+          if (ctx?.content?.trim()) {
+            await core.l0Capture({
+              sessionId: e.sessionKey,
+              role: "assistant",
+              content: ctx.content,
+            });
+          }
+        } catch (err) {
+          api.logger.error(`[metacognitive-memory] message:sent error: ${err}`);
+        }
+      });
+
+      // session:patch — detect new sessions
+      api.registerHook("session:patch", async (event) => {
+        try {
+          const e = event as { sessionKey: string };
+          await core.l0Capture({
+            sessionId: e.sessionKey,
+            role: "system",
+            content: "[session started]",
+          });
+        } catch (err) {
+          api.logger.error(`[metacognitive-memory] session:patch error: ${err}`);
+        }
+      });
+    } else {
+      api.logger.info(`[metacognitive-memory] Conversation capture disabled. Use l0_capture tool for manual capture.`);
+    }
 
     // ── Register all L0~L6 tools ────────────────────────────────────────────
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

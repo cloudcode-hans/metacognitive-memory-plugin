@@ -25,7 +25,7 @@ export function getOrCreateCore(api: OpenClawPluginApi): MetaCore {
 
   const hostAdapter = new OpenClawHostAdapter({
     api,
-    pluginDataDir: ".metacognitive_memory",
+    pluginDataDir: "metacognitive_memory",
     openclawConfig: api.config,
   });
 

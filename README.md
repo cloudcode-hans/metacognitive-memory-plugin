@@ -136,7 +136,7 @@ The values are read by the plugin at startup; restart the gateway to apply chang
 
 ```
 <stateDir>/
-└── .metacognitive_memory/
+└── metacognitive_memory/
     └── memory.db            # single-file SQLite, portable
 ```
 

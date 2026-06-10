@@ -30,7 +30,7 @@ export class MetaCore {
   private ready: Promise<void>;
 
   constructor(cfg: MetaCoreConfig) {
-    const dbPath = join(cfg.stateDir, "memory.db");
+    const dbPath = join(cfg.stateDir, "metacognitive_memory", "memory.db");
     this.store = new MemoryStore(dbPath);
     this.ready = this.store.initialize();
   }

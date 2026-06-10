@@ -154,7 +154,7 @@ Tables:
 
 Backup = copy `memory.db`. The plugin auto-saves on every write.
 
-> The `.metacognitive_memory` subdirectory is intentional — it lets multiple plugins share a parent `stateDir` without colliding.
+> The `metacognitive_memory` directory stores all agent memory data.
 
 ---
 
@@ -234,12 +234,12 @@ grep "metacognitive-memory" ~/.openclaw/logs/openclaw.log | tail
 #   → "[metacognitive-memory] Registered 20 tools + 3 hooks"
 
 # 3. DB is created on first call
-ls -la ~/.openclaw/state/metacognitive-memory/.metacognitive_memory/memory.db
+ls -la ~/.openclaw/state/metacognitive-memory/metacognitive_memory/memory.db
 
 # 4. Quick end-to-end smoke test from a node REPL
 node -e "
 import('metacognitive-memory-plugin').then(async (m) => {
-  const core = new m.MetaCore({ stateDir: '~/.openclaw/state/metacognitive-memory/.metacognitive_memory' });
+  const core = new m.MetaCore({ stateDir: '~/.openclaw/state/metacognitive-memory/metacognitive_memory' });
   await core.initialize();
   const id = core.l0Capture({ sessionId: 'smoke', role: 'user', content: 'hello' });
   console.log('L0 row:', id);

@@ -43,6 +43,12 @@ declare module "openclaw/plugin-sdk/core" {
       handler: (event: unknown) => Promise<void> | void,
       opts?: Record<string, unknown>,
     ) => void;
+    // Typed hook registration - use for before_prompt_build, llm_input, etc.
+    on: <K extends string>(
+      hookName: K,
+      handler: (event: unknown, ctx: unknown) => Promise<unknown> | unknown,
+      opts?: Record<string, unknown>,
+    ) => void;
   };
 
   // ─── Plugin entry helper ───────────────────────────────────────────────

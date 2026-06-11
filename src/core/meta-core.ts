@@ -1,6 +1,6 @@
 /**
  * meta-core.ts — Business logic facade for metacognitive memory.
- * Provides async initialization around MemoryStore.
+ * Provides async initialization around MemoryStore with vector support.
  */
 
 import { join } from "node:path";
@@ -56,6 +56,10 @@ export class MetaCore {
     return this.store.l0List(sessionId, limit);
   }
 
+  l0ListAll(limit = 50): L0Row[] {
+    return this.store.l0ListAll(limit);
+  }
+
   // ─── L1 ────────────────────────────────────────────────────────────────────
 
   l1Extract(sessionId: string, maxMemories = 30): number {
@@ -64,6 +68,50 @@ export class MetaCore {
 
   l1List(sessionId: string, memoryType?: MemoryType, limit = 50): L1Row[] {
     return this.store.l1List(sessionId, memoryType, limit);
+  }
+
+  l1ListAll(limit = 50): L1Row[] {
+    return this.store.l1ListAll(limit);
+  }
+
+  l1AddEmbedding(p: {
+    memoryId: string;
+    sessionId: string;
+    embedding: number[];
+  }): void {
+    return this.store.l1AddEmbedding(p);
+  }
+
+  // L1 Session State Management
+  l1SetSessionState(p: {
+    sessionId: string;
+    stateKey: string;
+    stateValue: unknown;
+    stateType?: string;
+    ttlSeconds?: number;
+    checkpointPos?: number;
+  }): string {
+    return this.store.l1SetSessionState(p);
+  }
+
+  l1GetSessionState(sessionId: string, stateKey: string): unknown | null {
+    return this.store.l1GetSessionState(sessionId, stateKey);
+  }
+
+  l1DeleteSessionState(sessionId: string, stateKey: string): void {
+    return this.store.l1DeleteSessionState(sessionId, stateKey);
+  }
+
+  l1ListSessionStates(sessionId: string): Array<{ key: string; value: unknown; updatedAt: string }> {
+    return this.store.l1ListSessionStates(sessionId);
+  }
+
+  l1AcquireLock(p: { sessionId: string; lockKey: string; timeoutSeconds?: number }): boolean {
+    return this.store.l1AcquireLock(p);
+  }
+
+  l1ReleaseLock(sessionId: string, lockKey: string): void {
+    return this.store.l1ReleaseLock(sessionId, lockKey);
   }
 
   // ─── L2 ────────────────────────────────────────────────────────────────────
@@ -95,6 +143,45 @@ export class MetaCore {
 
   l3ListRelations(sessionId: string, fromEntityId?: string, limit = 50): KGRelationRow[] {
     return this.store.l3ListRelations(sessionId, fromEntityId, limit);
+  }
+
+  l3AddEntityEmbedding(p: {
+    entityId: string;
+    sessionId: string;
+    embedding: number[];
+  }): void {
+    return this.store.l3AddEntityEmbedding(p);
+  }
+
+  // L3 Hybrid Search (BM25 + Vector RRF)
+  l3FtsSearch(p: {
+    sessionId: string;
+    query: string;
+    limit?: number;
+  }): Array<{ sourceId: string; sourceType: string; score: number; content: string }> {
+    return this.store.l3FtsSearch(p);
+  }
+
+  l3HybridSearch(p: {
+    sessionId: string;
+    query: string;
+    queryEmbedding?: number[];
+    limit?: number;
+    rrfK?: number;
+  }): Array<{ sourceId: string; sourceType: string; score: number; content: string }> {
+    return this.store.l3HybridSearch(p);
+  }
+
+  l3IndexSemanticContent(p: {
+    sessionId: string;
+    sourceType: string;
+    sourceId: string;
+    memoryText?: string;
+    entityName?: string;
+    factText?: string;
+    embedding?: number[];
+  }): void {
+    return this.store.l3IndexSemanticContent(p);
   }
 
   // ─── L4 ────────────────────────────────────────────────────────────────────
@@ -129,12 +216,21 @@ export class MetaCore {
     factText: string;
     confidence?: number;
     tags?: string[];
+    embedding?: number[];
   }): string {
     return this.store.l5AddFact(p);
   }
 
   l5Search(sessionId: string, query: string, limit = 20): KnowledgeFactRow[] {
     return this.store.l5Search(sessionId, query, limit);
+  }
+
+  l5VectorSearch(p: {
+    sessionId: string;
+    queryEmbedding: number[];
+    limit?: number;
+  }): { factId: string; factText: string; distance: number; confidence: number }[] {
+    return this.store.l5VectorSearch(p);
   }
 
   l5VerifyFact(factId: string, sessionId: string): void {
@@ -163,11 +259,116 @@ export class MetaCore {
   }
 
   l6SelfCheck(sessionId: string): {
+    score: number;
     errorStats: Record<string, number>;
     capCategories: Record<string, number>;
     recentErrors: ErrorLogRow[];
+    totalErrors: number;
+    totalSelfModelEntries: number;
+    verifiedCount: number;
   } {
     return this.store.l6SelfCheck(sessionId);
+  }
+
+  // ─── Data Purge & Maintenance ────────────────────────────────────────────────
+
+  purgeOldByAge(days: number, sessionId?: string): { totalDeleted: number; days: number; sessionId: string | null } {
+    return this.store.purgeOldByAge(days, sessionId);
+  }
+
+  purgeByFrequency(minFrequency: number, maxDays: number, sessionId?: string): { totalDeleted: number; minFrequency: number; maxDays: number; sessionId: string | null } {
+    return this.store.purgeByFrequency(minFrequency, maxDays, sessionId);
+  }
+
+  smartPurge(config: {
+    defaultRetentionDays?: number;
+    highFreqRetentionDays?: number;
+    mediumFreqRetentionDays?: number;
+    lowFreqRetentionDays?: number;
+    highFreqThreshold?: number;
+    mediumFreqThreshold?: number;
+    sessionId?: string;
+  } = {}): {
+    totalDeleted: number;
+    config: {
+      defaultRetentionDays: number;
+      highFreqRetentionDays: number;
+      mediumFreqRetentionDays: number;
+      lowFreqRetentionDays: number;
+      highFreqThreshold: number;
+      mediumFreqThreshold: number;
+    };
+  } {
+    return this.store.smartPurge(config);
+  }
+
+  getStorageStats(): { stats: Record<string, number>; totalRows: number; vectorEnabled: boolean } {
+    return this.store.getStorageStats();
+  }
+
+  // ─── File-based Storage Index (L4/L5/L6) ────────────────────────────────────
+
+  fileIndexCreate(p: {
+    sessionId: string;
+    layer: string;
+    filePath: string;
+    fileType: string;
+    title?: string;
+    summary?: string;
+    tags?: string[];
+    embedding?: number[];
+    version?: string;
+  }): string {
+    return this.store.fileIndexCreate(p);
+  }
+
+  fileIndexUpdate(p: {
+    id: string;
+    sessionId: string;
+    title?: string;
+    summary?: string;
+    tags?: string[];
+    embedding?: number[];
+    version?: string;
+  }): void {
+    return this.store.fileIndexUpdate(p);
+  }
+
+  fileIndexList(p: {
+    sessionId: string;
+    layer?: string;
+    limit?: number;
+  }): Array<{
+    id: string;
+    layer: string;
+    filePath: string;
+    fileType: string;
+    title: string;
+    summary: string;
+    tags: string[];
+    version: string;
+    updatedAt: string;
+  }> {
+    return this.store.fileIndexList(p);
+  }
+
+  fileIndexDelete(id: string, sessionId: string): void {
+    return this.store.fileIndexDelete(id, sessionId);
+  }
+
+  fileIndexSearch(p: {
+    sessionId: string;
+    query: string;
+    layer?: string;
+    limit?: number;
+  }): Array<{
+    id: string;
+    layer: string;
+    filePath: string;
+    title: string;
+    summary: string;
+  }> {
+    return this.store.fileIndexSearch(p);
   }
 
   async close(): Promise<void> {

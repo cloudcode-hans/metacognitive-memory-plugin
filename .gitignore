@@ -1,1 +1,31 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Build output - NOTE: dist/ is committed for plugin installation
+# dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Backup files
+*.bak
+*.backup
+
+# SQLite
+*.db
+*.db-shm
+*.db-wal
+
+# Environment
+.env
+.env.local

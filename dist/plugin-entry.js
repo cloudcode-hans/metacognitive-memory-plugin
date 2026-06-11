@@ -3,9 +3,8 @@
  * for automatic global conversation capture (message:received, message:sent).
  */
 import { definePluginEntry, jsonResult } from "openclaw/plugin-sdk/core";
-import { getOrCreateCore, buildExecuteHandler, toolParams } from "./index.js";
-// Re-export tools array so plugin-entry can build AnyAgentTool[] from it
-export { tools } from "./index.js";
+import { getOrCreateCore, buildExecuteHandler, toolParams, tools } from "./dist/index.js";
+let initStarted = false;
 export default definePluginEntry({
     id: "metacognitive-memory",
     name: "Metacognitive Memory",
@@ -14,19 +13,25 @@ export default definePluginEntry({
         "extracts structured memories (L1), builds scene blocks (L2), cognitive graphs (L3), " +
         "goal trees (L4), knowledge base (L5), and self-model diagnostics (L6).",
     async register(api) {
-        // ── Initialize singleton core once ─────────────────────────────────────
+        if (initStarted) {
+            api.logger.info("[metacognitive-memory] register() called again, skipping (already initialized)");
+            return;
+        }
+        initStarted = true;
+        api.logger.info("[metacognitive-memory] === Plugin entry initialization started ===");
+        
+        api.logger.info("[metacognitive-memory] Creating core instance...");
         const core = getOrCreateCore(api);
+        
+        api.logger.info("[metacognitive-memory] Initializing memory store...");
         const initPromise = core.initialize();
+        
+        api.logger.info("[metacognitive-memory] Building tool handler...");
         const handler = buildExecuteHandler(api);
-        // ── Check hook permissions from config ─────────────────────────────────
-        const hooksConfig = api.config?.plugins?.entries?.["metacognitive-memory"]?.hooks;
-        const allowConversationAccess = hooksConfig?.allowConversationAccess ?? false;
-        const allowPromptInjection = hooksConfig?.allowPromptInjection ?? false;
-        api.logger.info(`[metacognitive-memory] allowConversationAccess=${allowConversationAccess}, allowPromptInjection=${allowPromptInjection}`);
-        // ── Conversation hooks for automatic global capture (OPT-IN) ───────────
-        if (allowConversationAccess) {
-            // message:received — every inbound user message
-            api.registerHook("message:received", async (event) => {
+        
+        // ── Conversation hooks for automatic global capture ─────────────────────
+        api.logger.info("[metacognitive-memory] Registering conversation hooks...");
+        api.registerHook("message:received", async (event) => {
                 try {
                     const e = event;
                     const ctx = e.context;
@@ -39,7 +44,7 @@ export default definePluginEntry({
                 catch (err) {
                     api.logger.error(`[metacognitive-memory] message:received error: ${err}`);
                 }
-            });
+            }, { name: "metacognitive-memory-entry-receive" });
             // message:sent — every outbound assistant reply (covers LLM output)
             api.registerHook("message:sent", async (event) => {
                 try {
@@ -56,7 +61,7 @@ export default definePluginEntry({
                 catch (err) {
                     api.logger.error(`[metacognitive-memory] message:sent error: ${err}`);
                 }
-            });
+            }, { name: "metacognitive-memory-entry-sent" });
             // session:patch — detect new sessions
             api.registerHook("session:patch", async (event) => {
                 try {
@@ -71,14 +76,11 @@ export default definePluginEntry({
                     api.logger.error(`[metacognitive-memory] session:patch error: ${err}`);
                 }
             });
-        }
-        else {
-            api.logger.info(`[metacognitive-memory] Conversation capture disabled. Use l0_capture tool for manual capture.`);
-        }
+            api.logger.info("[metacognitive-memory] ✓ Conversation hooks registered successfully");
+        
         // ── Register all L0~L6 tools ────────────────────────────────────────────
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mod = await import("./index.js");
-        const toolEntries = mod.tools;
+        api.logger.info(`[metacognitive-memory] Registering ${tools.length} tools...`);
+        const toolEntries = tools;
         const toolDefs = toolEntries.map((toolEntry) => {
             const [name, description, schema] = toolEntry;
             const toolDef = {
@@ -94,10 +96,17 @@ export default definePluginEntry({
             };
             return toolDef;
         });
+        let registeredToolCount = 0;
         for (const tool of toolDefs) {
-            api.registerTool(tool);
+            try {
+                api.registerTool(tool);
+                registeredToolCount++;
+            } catch (err) {
+                api.logger.error(`[metacognitive-memory] ✗ Failed to register tool ${tool.name}: ${err}`);
+            }
         }
-        api.logger.info(`[metacognitive-memory] Registered ${toolDefs.length} tools + 3 conversation hooks`);
+        api.logger.info(`[metacognitive-memory] ✓ Successfully registered ${registeredToolCount}/${toolDefs.length} tools`);
+        api.logger.info("[metacognitive-memory] === Plugin entry initialization completed ===");
     },
 });
 //# sourceMappingURL=plugin-entry.js.map

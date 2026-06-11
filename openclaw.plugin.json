@@ -4,15 +4,35 @@
   "description": "L0~L6 cognitive memory system with privacy controls. WARNING: May contain sensitive data. Only enable allowConversationAccess=true if you want automatic conversation capture. Disable in workspaces with credentials, regulated data, or proprietary prompts.",
   "version": "1.0.4",
   "activation": {
-    "onStartup": false
+    "onStartup": true
   },
   "configSchema": {
     "type": "object",
     "properties": {
       "allowConversationAccess": {
         "type": "boolean",
-        "default": false,
+        "default": true,
         "description": "OPT-IN ONLY. When true, automatically captures message:received/message:sent events as L0 raw logs. Only enable if you want persistent conversation logging. Disable for sensitive contexts."
+      },
+      "allowPromptInjection": {
+        "type": "boolean",
+        "default": true,
+        "description": "OPT-IN ONLY. When true, automatically injects recent L0/L1 memories into the agent prompt via before_prompt_build hook. Enable if you want the agent to have contextual memory awareness. May increase token usage."
+      },
+      "l0InjectLimit": {
+        "type": "number",
+        "default": 3,
+        "description": "Number of L0 records to inject into prompt (0 = disabled). Recommended: 3. Lower = fewer tokens."
+      },
+      "l1InjectLimit": {
+        "type": "number",
+        "default": 5,
+        "description": "Number of L1 records to inject into prompt (0 = disabled). Recommended: 5. Lower = fewer tokens."
+      },
+      "crossSessionInjectLimit": {
+        "type": "number",
+        "default": 5,
+        "description": "Number of cross-session L0 records to inject for new sessions (0 = disabled). Recommended: 5. Helps agent remember previous conversations."
       },
       "stateDir": {
         "type": "string",
@@ -25,6 +45,41 @@
       "idleTimeoutSeconds": {
         "type": "number",
         "default": 60
+      },
+      "l3UpdateThreshold": {
+        "type": "number",
+        "default": 5,
+        "description": "Minimum number of L1 memories accumulated before triggering L3 graph update."
+      },
+      "defaultRetentionDays": {
+        "type": "number",
+        "default": 90,
+        "description": "Default retention period in days for memory data."
+      },
+      "highFreqRetentionDays": {
+        "type": "number",
+        "default": 180,
+        "description": "Retention period for high-frequency/importance memories."
+      },
+      "mediumFreqRetentionDays": {
+        "type": "number",
+        "default": 90,
+        "description": "Retention period for medium-frequency/importance memories."
+      },
+      "lowFreqRetentionDays": {
+        "type": "number",
+        "default": 30,
+        "description": "Retention period for low-frequency/importance memories."
+      },
+      "highFreqThreshold": {
+        "type": "number",
+        "default": 10,
+        "description": "Frequency threshold for high-frequency classification."
+      },
+      "mediumFreqThreshold": {
+        "type": "number",
+        "default": 3,
+        "description": "Frequency threshold for medium-frequency classification."
       }
     }
   },
@@ -32,8 +87,10 @@
     "tools": [
       "l0_capture",
       "l0_list",
+      "l0_list_all",
       "l1_extract",
       "l1_list",
+      "l1_list_all",
       "l2_create_scene",
       "l2_list_scenes",
       "l3_update_graph",
@@ -49,7 +106,27 @@
       "l5_list_facts",
       "l5_delete_fact",
       "l6_log_error",
-      "l6_self_check"
+      "l6_self_check",
+      "purge_old_by_age",
+      "purge_by_frequency",
+      "smart_purge",
+      "get_storage_stats",
+      "l1_add_embedding",
+      "l1_set_session_state",
+      "l1_get_session_state",
+      "l1_delete_session_state",
+      "l1_list_session_states",
+      "l1_acquire_lock",
+      "l1_release_lock",
+      "l3_fts_search",
+      "l3_hybrid_search",
+      "l3_add_entity_embedding",
+      "l5_vector_search",
+      "file_index_create",
+      "file_index_update",
+      "file_index_list",
+      "file_index_delete",
+      "file_index_search"
     ]
   }
 }

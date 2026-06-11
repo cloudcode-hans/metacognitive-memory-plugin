@@ -51,13 +51,15 @@
     "node": ">=22.16.0"
   },
   "dependencies": {
-    "sql.js": "^1.11.0",
+    "better-sqlite3": "^12.10.0",
+    "sqlite-vec": "^0.1.9",
     "typebox": "^1.1.38"
   },
   "peerDependencies": {
     "openclaw": ">=2026.5.17"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.0.0",
     "@types/sql.js": "^1.4.11",
     "typescript": "^5.5.0",

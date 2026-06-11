@@ -11,9 +11,20 @@ export interface OpenClawHostAdapterOptions {
 export declare class OpenClawHostAdapter {
     private api;
     readonly pluginDataDir: string;
+    private openclawConfig;
     constructor(opts: OpenClawHostAdapterOptions);
     get logger(): import("openclaw/plugin-sdk/core").PluginLogger;
+    /**
+     * Resolves state directory with support for:
+     * - Absolute paths (user configured)
+     * - `~` prefix (expands to user home directory)
+     * - Relative paths (resolved relative to openclaw config directory)
+     */
     get stateDir(): string;
+    /**
+     * Gets the OpenClaw configuration directory from the config object.
+     */
+    private getOpenClawDir;
     resolveDataPath(subPath: string): string;
 }
 //# sourceMappingURL=host-adapter.d.ts.map

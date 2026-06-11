@@ -3,7 +3,6 @@
  * for automatic global conversation capture (message:received, message:sent).
  */
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/core";
-export { tools } from "./index.js";
 declare const _default: {
     id: string;
     name: string;
